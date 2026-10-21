@@ -1,0 +1,6 @@
+{
+  "name": "FocusFlow",
+  "description": "מערכת מעקב קשב ולמידה מבוססת בינה מלאכותית ומצלמת רשת עם אימות משתמשים, ניהול תכנים וסטטיסטיקות מתקדמות",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

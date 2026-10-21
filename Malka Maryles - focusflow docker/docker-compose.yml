@@ -1,0 +1,128 @@
+# FocusFlow - the whole stack from 3 Docker images
+#
+#   somejon/focusflow-postgres:latest   database
+#   somejon/focus-flow:local            server  (built from GitHub "main")
+#   somejon/focus-flow-client:local     client  (built from GitHub "main")
+#
+#   Client:   http://localhost:3000/focus-flow-client/
+#   Server:   http://localhost:8081/api
+#   Database: localhost:5432  (user: myuser / password: 123 / db: postgres)
+#
+# This is the ONLY compose file. Just run start.bat.
+# The "build:" parts are the recipes for the two :local images; start.bat only
+# uses them when an image isn't on this PC or on Docker Hub yet. To rebuild one
+# by hand:  docker compose build server   (or client)
+
+name: focusflow
+
+services:
+  # ---------------------------------------------------------------- Database
+  db:
+    image: somejon/focusflow-postgres:latest
+    container_name: focusflow-postgres-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: "123"
+    ports:
+      # Exposed so you can connect with DBeaver / pgAdmin
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser -d postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+
+  # ------------------------------------------------------------------ Server
+  # Built from GitHub "main" and tagged :local, because the published :latest
+  # image expects a newer DB schema (Playlist_Item.item_order) than the
+  # database image has.
+  server:
+    image: somejon/focus-flow:local
+    build:
+      # Local folder (kept empty by .dockerignore) - the Dockerfile below
+      # clones the server repo itself, which works on every Compose version.
+      context: .
+      dockerfile_inline: |
+        FROM python:3.10-slim
+        RUN apt-get update && apt-get install -y --no-install-recommends \
+                gcc libssl-dev git ca-certificates \
+            && rm -rf /var/lib/apt/lists/*
+        WORKDIR /app
+        RUN git clone --depth 1 --branch main https://github.com/The-JAR-Team/focus-flow-server.git .
+        RUN pip install --no-cache-dir --upgrade pip \
+            && pip install --no-cache-dir -r requirements.txt
+        ENV PYTHONDONTWRITEBYTECODE=1 \
+            PYTHONUNBUFFERED=1 \
+            PYTHONPATH=/app
+        CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$${PORT:-8080} --workers 10 --timeout 3600 server.main.app:app"]
+    container_name: focusflow-server
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy   # wait until Postgres actually accepts connections
+    # Secrets (GEMINI_API_KEY, GMAIL_*, proxy settings...) come from .env
+    env_file:
+      - .env
+    # Anything below OVERRIDES .env, so the container always finds the db
+    # (inside Docker the host is "db", not "localhost").
+    environment:
+      PORT: "8080"
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: postgres
+      DB_USER: myuser
+      DB_PASSWORD: "123"
+      # Gemini model for summaries + questions. A GEMINI_MODEL line in .env wins;
+      # otherwise this default is used. (The server's built-in default,
+      # gemini-2.5-flash-preview-05-20, was shut down by Google on 2025-11-18.)
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
+      APP_CONFIRMATION_URL_BASE: http://localhost:8081
+      APP_CONFIRMATION_ENDPOINT: /api/confirm_email
+      SITE_LOGIN_URL: http://localhost:3000/focus-flow-client/
+    ports:
+      - "8081:8080"
+
+  # ------------------------------------------------------------------ Client
+  # The client's API address is hardcoded (https://focusflow.art/api) in
+  # src/config/config.js, so it is swapped for the local server address at build
+  # time. If you change the server's outside port above, change API_URL here
+  # too and rebuild with:  docker compose build client
+  # The published :latest image points at the production site instead.
+  client:
+    image: somejon/focus-flow-client:local
+    build:
+      context: .
+      args:
+        API_URL: http://localhost:8081/api
+      dockerfile_inline: |
+        FROM node:20-alpine AS build
+        RUN apk add --no-cache git
+        WORKDIR /app
+        RUN git clone --depth 1 --branch main https://github.com/The-JAR-Team/focus-flow-client.git .
+        RUN npm install
+        ARG API_URL
+        RUN sed -i "s#https://focusflow.art/api#$${API_URL}#g" src/config/config.js \
+            && grep -q "$${API_URL}" src/config/config.js
+        RUN npm run build
+
+        FROM nginx:1.27-alpine
+        RUN rm /etc/nginx/conf.d/default.conf
+        COPY --from=build /app/nginx/focusflow.conf /etc/nginx/conf.d/focusflow.conf
+        RUN mkdir -p /usr/share/nginx/html/focus-flow-client
+        COPY --from=build /app/dist/ /usr/share/nginx/html/focus-flow-client/
+        EXPOSE 80
+        CMD ["nginx", "-g", "daemon off;"]
+    container_name: focusflow-client
+    restart: unless-stopped
+    depends_on:
+      - server
+    ports:
+      - "3000:80"
+
+volumes:
+  pgdata:

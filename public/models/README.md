@@ -1,0 +1,1 @@
+Place `attention_model.onnx` here before starting a session. Expected input shape: [1, 100, 478, 3], output shape: [1, 1].
