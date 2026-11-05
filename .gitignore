@@ -25,3 +25,12 @@ Thumbs.db
 *.onnx
 assignment3.zip
 Malka Maryles - focusflow-models/
+
+# AI assistant working files
+.kiro/
+
+# Submission helpers
+scripts/
+
+# Word temp files
+~$*

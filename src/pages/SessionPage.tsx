@@ -54,7 +54,7 @@ export const SessionPage: React.FC = () => {
   const [bufferCount, setBufferCount] = useState<number>(0);
   const [lowAttentionAlert, setLowAttentionAlert] = useState<boolean>(false);
   const [threshold] = useState<number>(0.45);
-  const [diagnostics, setDiagnostics] = useState<any>(null);
+  const [diagnostics, setDiagnostics] = useState<{ pitch: number; yaw: number; roll: number; ear: number; mar: number; gazeDeviation: number; blinkRate: number; behaviorState: string } | null>(null);
   const [liveReadings, setLiveReadings] = useState<{ timestamp: string; score: number | null; faceDetected: boolean }[]>([]);
 
   // Model error state
@@ -102,7 +102,7 @@ export const SessionPage: React.FC = () => {
 
   // ── Session timer ─────────────────────────────────────────────
   useEffect(() => {
-    let timer: any = null;
+    let timer: ReturnType<typeof setInterval> | null = null;
     if (isSessionActive) {
       timer = setInterval(() => setDurationSeconds((p) => p + 1), 1000);
     } else {

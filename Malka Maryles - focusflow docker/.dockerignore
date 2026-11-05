@@ -1,3 +1,0 @@
-# The client image clones its own source from GitHub, so it needs nothing from
-# this folder. Ignoring everything keeps .env and the scripts out of the build.
-*

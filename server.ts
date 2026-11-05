@@ -321,7 +321,7 @@ app.get('/api/content/:content_id', authenticateToken, (req: AuthenticatedReques
     return;
   }
   if (item.user_id !== req.user!.id) {
-    res.status(403).json({ detail: 'אין לך הרשאה לגשת לחומר למידה זה.' });
+    res.status(404).json({ detail: 'חומר הלמידה המבוקש לא נמצא.' });
     return;
   }
   res.status(200).json(item);
@@ -334,7 +334,7 @@ app.delete('/api/content/:content_id', authenticateToken, (req: AuthenticatedReq
     return;
   }
   if (item.user_id !== req.user!.id) {
-    res.status(403).json({ detail: 'אין לך הרשאה למחוק חומר למידה זה.' });
+    res.status(404).json({ detail: 'חומר הלמידה המבוקש לא נמצא.' });
     return;
   }
   content.delete(req.params.content_id);
@@ -356,7 +356,7 @@ app.post('/api/sessions', authenticateToken, (req: AuthenticatedRequest, res: Re
   }
 
   if (contentDoc.user_id !== req.user!.id) {
-    res.status(403).json({ detail: 'אין לך הרשאה לפתוח סשן עבור תוכן זה.' });
+    res.status(404).json({ detail: 'חומר הלמידה המבוקש עבור הסשן לא נמצא.' });
     return;
   }
 
@@ -387,7 +387,7 @@ app.post('/api/sessions/:session_id/readings', authenticateToken, (req: Authenti
   }
 
   if (session.user_id !== req.user!.id) {
-    res.status(403).json({ detail: 'אין לך הרשאה להוסיף נתונים לסשן זה.' });
+    res.status(404).json({ detail: 'סשן הלמידה לא נמצא.' });
     return;
   }
 
@@ -429,7 +429,7 @@ app.post('/api/sessions/:session_id/end', authenticateToken, (req: Authenticated
   }
 
   if (session.user_id !== req.user!.id) {
-    res.status(403).json({ detail: 'אין לך הרשאה לסיים סשן זה.' });
+    res.status(404).json({ detail: 'סשן הלמידה לא נמצא.' });
     return;
   }
 
@@ -481,7 +481,7 @@ app.get('/api/sessions/:session_id', authenticateToken, (req: AuthenticatedReque
   }
 
   if (session.user_id !== req.user!.id) {
-    res.status(403).json({ detail: 'אין לך הרשאה לצפות בסשן זה.' });
+    res.status(404).json({ detail: 'סשן הלמידה לא נמצא.' });
     return;
   }
 

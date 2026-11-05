@@ -17,14 +17,14 @@ export const LoginPage: React.FC = () => {
 
   // Pre-fill email if redirected from registration page
   useEffect(() => {
-    const registeredEmail = (location.state as any)?.registeredEmail;
+    const registeredEmail = (location.state as { registeredEmail?: string })?.registeredEmail;
     if (registeredEmail) {
       setEmail(registeredEmail);
       setSuccessMessage('החשבון נוצר בהצלחה! כעת התחבר כדי להתחיל.');
     }
   }, [location]);
 
-  const from = (location.state as any)?.from?.pathname || '/library';
+  const from = (location.state as { from?: { pathname?: string } })?.from?.pathname || '/library';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
