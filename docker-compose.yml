@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    platform: linux/amd64
     container_name: focusflow-frontend
     ports:
       - "3000:3000"
@@ -18,6 +19,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    platform: linux/amd64
     container_name: focusflow-backend
     ports:
       - "8000:8000"

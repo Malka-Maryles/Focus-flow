@@ -31,7 +31,7 @@ async def create_session(payload: SessionCreateRequest, current_user: dict = Dep
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="חומר הלמידה המבוקש עבור הסשן לא נמצא.")
         
     if content_doc.get("user_id") != current_user["id"]:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="אין לך הרשאה לפתוח סשן עבור תוכן זה.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="חומר הלמידה המבוקש עבור הסשן לא נמצא.")
         
     now = datetime.utcnow()
     session_doc = {
@@ -136,7 +136,7 @@ async def end_session(session_id: str, current_user: dict = Depends(get_current_
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="סשן הלמידה לא נמצא.")
         
     if session_doc.get("user_id") != current_user["id"]:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="אין לך הרשאה לסיים סשן זה.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="סשן הלמידה לא נמצא.")
         
     now = datetime.utcnow()
     started_at = session_doc.get("started_at", now)
@@ -214,7 +214,7 @@ async def get_session_detail(session_id: str, current_user: dict = Depends(get_c
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="סשן הלמידה לא נמצא.")
         
     if session_doc.get("user_id") != current_user["id"]:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="אין לך הרשאה לצפות בסשן זה.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="סשן הלמידה לא נמצא.")
         
     # Retrieve all readings
     readings_cursor = db.readings.find({"session_id": session_id}).sort("timestamp", 1)

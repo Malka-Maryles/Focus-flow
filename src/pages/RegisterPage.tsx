@@ -28,7 +28,8 @@ export const RegisterPage: React.FC = () => {
     setIsSubmitting(true);
     try {
       await register(cleanEmail, password, cleanName);
-      navigate('/library', { replace: true });
+      // After successful registration, redirect to login page (not auto-login)
+      navigate('/login', { replace: true, state: { registeredEmail: cleanEmail } });
     } catch (err: any) {
       setErrorMessage(err.message || 'שגיאה ביצירת החשבון. אנא נסה שוב.');
     } finally {
@@ -117,7 +118,7 @@ export const RegisterPage: React.FC = () => {
           >
             {isSubmitting
               ? <><Loader2 className="w-4 h-4 animate-spin" /><span>יוצר חשבון...</span></>
-              : <span>יצירת חשבון והתחלת שימוש</span>}
+              : <span>יצירת חשבון</span>}
           </button>
         </form>
 

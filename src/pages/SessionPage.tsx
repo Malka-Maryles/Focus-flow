@@ -502,6 +502,16 @@ export const SessionPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Privacy info — shown before session starts */}
+      {!isSessionActive && (
+        <div className="mb-4 p-3 bg-indigo-50/60 border border-indigo-100 rounded-xl flex items-center gap-2.5 text-slate-600 text-xs">
+          <Camera className="w-4 h-4 text-indigo-500 shrink-0" />
+          <span>
+            פרטיות: בלחיצה על "התחל סשן" המצלמה תופעל ותבקש אישור. נאספות רק נקודות ציון פנים (478 נקודות בלבד) — הוידאו עצמו אינו נשמר ואינו עוזב את הדפדפן. אם תסרבו, ניתן להמשיך לצפות בתוכן בלי מדידה או לעבור למצב סימולציה.
+          </span>
+        </div>
+      )}
+
       {/* Alert banners */}
       <AlertBanners />
 

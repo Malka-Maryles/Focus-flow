@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, Mail, Lock, Eye, EyeOff, AlertCircle, Loader2 } from 'lucide-react';
+import { Sparkles, Mail, Lock, Eye, EyeOff, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -13,6 +13,16 @@ export const LoginPage: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Pre-fill email if redirected from registration page
+  useEffect(() => {
+    const registeredEmail = (location.state as any)?.registeredEmail;
+    if (registeredEmail) {
+      setEmail(registeredEmail);
+      setSuccessMessage('החשבון נוצר בהצלחה! כעת התחבר כדי להתחיל.');
+    }
+  }, [location]);
 
   const from = (location.state as any)?.from?.pathname || '/library';
 
@@ -50,6 +60,14 @@ export const LoginPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-slate-800 mb-1">ברוכים הבאים ל-FocusFlow</h1>
           <p className="text-sm text-slate-500">התחברו כדי לעקוב אחר רמת הקשב בלמידה</p>
         </div>
+
+        {/* Success message from registration */}
+        {successMessage && (
+          <div className="mb-5 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-2.5 text-emerald-700 text-sm">
+            <CheckCircle2 className="w-5 h-5 shrink-0 mt-0.5" />
+            <span>{successMessage}</span>
+          </div>
+        )}
 
         {/* Error */}
         {errorMessage && (

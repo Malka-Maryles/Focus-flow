@@ -641,15 +641,20 @@ export const WebcamLandmarkDetector: React.FC<WebcamLandmarkDetectorProps> = ({
               <div className="text-center p-4 max-w-sm mx-auto text-rose-300">
                 <CameraOff className="w-8 h-8 mx-auto mb-2 text-rose-400" />
                 <h4 className="text-xs font-bold text-white mb-1">המצלמה אינה זמינה כעת</h4>
-                <p className="text-[11px] text-rose-200 mb-3">{errorMessage}</p>
-                <button
-                  type="button"
-                  onClick={() => handleSelectMode('simulation')}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer"
-                >
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>מעבר לסימולציית AI לבדיקת המודל</span>
-                </button>
+                <p className="text-[11px] text-rose-200 mb-2">{errorMessage}</p>
+                <p className="text-[11px] text-slate-400 mb-3">
+                  אפשר להמשיך לצפות בתוכן בצד שמאל בלי מדידת קשב, או לעבור לסימולציית AI.
+                </p>
+                <div className="flex flex-col gap-2 items-center">
+                  <button
+                    type="button"
+                    onClick={() => handleSelectMode('simulation')}
+                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-lg shadow-xs transition-colors cursor-pointer"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>מעבר לסימולציית AI</span>
+                  </button>
+                </div>
               </div>
             )}
           </>

@@ -71,15 +71,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const register = async (email: string, password: string, displayName: string) => {
     setIsLoading(true);
     try {
-      const resp = await authService.register({
+      // Register the user — server returns a token but we intentionally
+      // do NOT auto-login. The user is redirected to the login page.
+      await authService.register({
         email,
         password,
         display_name: displayName,
       });
-      setToken(resp.access_token);
-      setUser(resp.user);
-      localStorage.setItem('focusflow_token', resp.access_token);
-      localStorage.setItem('focusflow_user', JSON.stringify(resp.user));
     } finally {
       setIsLoading(false);
     }
