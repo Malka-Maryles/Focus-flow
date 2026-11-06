@@ -97,6 +97,7 @@ async def add_session_reading(
         "session_id": session_id,
         "timestamp": payload.timestamp or datetime.utcnow(),
         "attention_score": valid_score,
+        "position": payload.position,
         "face_detected": payload.face_detected,
         "prediction_source": payload.prediction_source or "simulation"
     }
@@ -115,6 +116,7 @@ async def add_session_reading(
         session_id=session_id,
         timestamp=reading_doc["timestamp"],
         attention_score=valid_score,
+        position=payload.position,
         face_detected=payload.face_detected,
         prediction_source=reading_doc["prediction_source"]
     )
@@ -225,6 +227,7 @@ async def get_session_detail(session_id: str, current_user: dict = Depends(get_c
             session_id=r["session_id"],
             timestamp=r["timestamp"],
             attention_score=r.get("attention_score"),
+            position=r.get("position"),
             face_detected=r.get("face_detected", True),
             prediction_source=r.get("prediction_source", "simulation")
         ))

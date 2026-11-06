@@ -14,6 +14,7 @@ export const sessionService = {
     reading: {
       timestamp: string;
       attention_score: number | null;
+      position: number | null;
       face_detected: boolean;
       prediction_source: string;
     }

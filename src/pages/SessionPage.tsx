@@ -50,6 +50,7 @@ export const SessionPage: React.FC = () => {
   // Attention & Pipeline state
   const pipelineRef = useRef<AttentionPipeline>(new AttentionPipeline());
   const lastSavedReadingTime = useRef<number>(0);
+  const sessionStartTime = useRef<number>(0);
   const [currentScore, setCurrentScore] = useState<number | null>(null);
   const [faceDetected, setFaceDetected] = useState<boolean>(true);
   const [isBuffering, setIsBuffering] = useState<boolean>(true);
@@ -224,10 +225,23 @@ export const SessionPage: React.FC = () => {
       sessionService.addReading(activeSession.id, {
         timestamp: readingObj.timestamp,
         attention_score: readingObj.score,
+        position: getContentPosition(),
         face_detected: result.faceDetected,
         prediction_source: result.predictionSource,
       }).catch((e) => console.error('Error adding reading', e));
     }
+  };
+
+  // Position in the content for each reading:
+  // text  → how far the reader scrolled (0-100%)
+  // video → seconds since the session started (the embedded player time is not exposed)
+  const getContentPosition = (): number => {
+    const el = textContentRef.current;
+    if (selectedContent?.content_type === 'text' && el) {
+      const scrollable = el.scrollHeight - el.clientHeight;
+      return scrollable > 0 ? Math.round((el.scrollTop / scrollable) * 1000) / 10 : 0;
+    }
+    return Math.max(0, Math.round((Date.now() - sessionStartTime.current) / 100) / 10);
   };
 
   // ── Session controls ──────────────────────────────────────────
@@ -244,6 +258,7 @@ export const SessionPage: React.FC = () => {
       setActiveSession(newSession);
       pipelineRef.current.reset();
       lastSavedReadingTime.current = 0;
+      sessionStartTime.current = Date.now();
       setLiveReadings([]);
       setIsBuffering(true);
       setBufferCount(0);

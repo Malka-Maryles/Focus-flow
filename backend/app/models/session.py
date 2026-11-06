@@ -10,6 +10,7 @@ class SessionStatus(str, Enum):
 class ReadingCreateRequest(BaseModel):
     timestamp: datetime = Field(default_factory=datetime.utcnow, description="זמן הדגימה")
     attention_score: Optional[float] = Field(None, ge=0.0, le=1.0, description="ציון קשב בין 0 ל-1 כאשר יש פנים")
+    position: Optional[float] = Field(None, ge=0.0, description="מיקום בתוכן: שניות מתחילת הצפייה (וידאו) או אחוז גלילה 0-100 (טקסט)")
     face_detected: bool = Field(..., description="האם זוהו פנים מול המצלמה")
     prediction_source: str = Field(default="simulation", description="מקור החיזוי: 'simulation' או 'onnx_model'")
 
@@ -18,6 +19,7 @@ class ReadingResponse(BaseModel):
     session_id: str
     timestamp: datetime
     attention_score: Optional[float] = None
+    position: Optional[float] = None
     face_detected: bool
     prediction_source: str
 

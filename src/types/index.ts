@@ -30,6 +30,7 @@ export interface Reading {
   session_id: string;
   timestamp: string;
   attention_score: number | null;
+  position?: number | null; // seconds into the session (video) or scroll % (text)
   face_detected: boolean;
   prediction_source: string;
 }
