@@ -60,7 +60,13 @@ export async function apiRequest<T>(
     const data = await response.json().catch(() => null);
 
     if (!response.ok) {
-      const errorMsg = data?.detail || data?.message || `שגיאה בתקשורת עם השרת (${response.status})`;
+      // FastAPI validation errors (422) return detail as a list of objects, not a string
+      const detail = data?.detail;
+      const errorMsg = typeof detail === 'string'
+        ? detail
+        : Array.isArray(detail)
+          ? 'אחד השדות אינו תקין. נא לבדוק את הערכים שהוזנו (למשל כתובת אימייל תקינה).'
+          : data?.message || `שגיאה בתקשורת עם השרת (${response.status})`;
       throw new Error(errorMsg);
     }
 

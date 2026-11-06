@@ -39,6 +39,8 @@ export const SessionPage: React.FC = () => {
   const [contentList, setContentList] = useState<ContentItem[]>([]);
   const [selectedContent, setSelectedContent] = useState<ContentItem | null>(null);
   const [isLoadingContent, setIsLoadingContent] = useState(true);
+  // True when the URL points to content that doesn't exist or belongs to another user
+  const [contentNotFound, setContentNotFound] = useState(false);
 
   // Session state
   const [activeSession, setActiveSession] = useState<Session | null>(null);
@@ -82,12 +84,14 @@ export const SessionPage: React.FC = () => {
   useEffect(() => {
     async function loadContent() {
       setIsLoadingContent(true);
+      setContentNotFound(false);
       try {
         const items = await contentService.list();
         setContentList(items);
         if (preselectedContentId) {
           const match = items.find((i) => i.id === preselectedContentId);
           if (match) setSelectedContent(match);
+          else setContentNotFound(true);
         } else if (items.length > 0) {
           setSelectedContent(items[0]);
         }
@@ -424,6 +428,33 @@ export const SessionPage: React.FC = () => {
     );
   }
 
+  // ── NOT FOUND (missing item or another user's item) ──────────
+  // Deliberately shows no details about the requested item.
+  if (contentNotFound && !isSessionActive) {
+    return (
+      <div className="max-w-xl mx-auto px-4 py-16 text-center text-slate-800" role="alert">
+        <h1 className="text-3xl font-bold mb-3">לא נמצא</h1>
+        <p className="text-slate-600 mb-8">
+          חומר הלמידה המבוקש לא נמצא. ייתכן שהוא נמחק או שאין לך הרשאה לצפות בו.
+        </p>
+        <div className="flex gap-3 justify-center flex-wrap">
+          <button
+            onClick={() => navigate('/library')}
+            className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-sm font-semibold"
+          >
+            חזרה לספרייה שלי
+          </button>
+          <button
+            onClick={() => navigate('/session')}
+            className="px-5 py-2.5 bg-white border border-slate-300 hover:bg-slate-50 text-slate-800 rounded-xl text-sm font-semibold"
+          >
+            בחירת תוכן אחר לסשן
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   // ── NORMAL LAYOUT ─────────────────────────────────────────────
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-slate-800">
@@ -608,7 +639,7 @@ export const SessionPage: React.FC = () => {
             bufferRequired={100}
             threshold={threshold}
             isSimulated={isSimulatedSession}
-            diagnostics={diagnostics}
+            diagnostics={diagnostics ?? undefined}
           />
         </div>
       </div>
