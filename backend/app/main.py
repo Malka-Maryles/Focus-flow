@@ -53,7 +53,6 @@ async def health_check():
         "environment": settings.ENVIRONMENT,
         "database": {
             "status": "connected" if db_ok else "disconnected",
-            "url": settings.MONGODB_URL.split("@")[-1] if "@" in settings.MONGODB_URL else settings.MONGODB_URL
         },
         "simulation_mode": settings.ATTENTION_SIMULATION_MODE,
         "message_he": "שרת FocusFlow פועל בהצלחה"

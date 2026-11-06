@@ -1,4 +1,5 @@
 from datetime import datetime
+from app.config import settings
 from fastapi import APIRouter, HTTPException, status, Response, Depends
 from bson import ObjectId
 from app.database.mongo import get_database
@@ -52,7 +53,7 @@ async def register(payload: UserRegisterRequest, response: Response):
         httponly=True,
         max_age=86400 * 7,
         samesite="lax",
-        secure=False # Set to True in production with HTTPS
+        secure=settings.IS_PRODUCTION  # HTTPS-only cookie in the cloud
     )
     
     return TokenResponse(access_token=token, token_type="bearer", user=user_resp)
@@ -83,7 +84,7 @@ async def login(payload: UserLoginRequest, response: Response):
         httponly=True,
         max_age=86400 * 7,
         samesite="lax",
-        secure=False
+        secure=settings.IS_PRODUCTION
     )
     
     user_resp = UserResponse(

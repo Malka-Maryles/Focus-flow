@@ -24,5 +24,7 @@ COPY . .
 # Expose FastAPI default port
 EXPOSE 8000
 
-# Run uvicorn server
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Run uvicorn server.
+# Cloud Run injects $PORT (we configure it as 8000); default to 8000 locally.
+# --proxy-headers: trust X-Forwarded-Proto from the Google Load Balancer (HTTPS).
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]

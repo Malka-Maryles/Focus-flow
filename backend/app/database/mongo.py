@@ -11,10 +11,18 @@ class MongoDBManager:
 
 db_manager = MongoDBManager()
 
+def redact_mongo_url(url: str) -> str:
+    """Return the MongoDB URL without credentials (user:password@)."""
+    if "@" not in url:
+        return url
+    scheme, _, rest = url.partition("://")
+    return f"{scheme}://***@{rest.split('@', 1)[1]}"
+
 async def connect_to_mongo():
     """Initialize MongoDB connection and create required indexes."""
     try:
-        logger.info(f"Connecting to MongoDB at {settings.MONGODB_URL}...")
+        # Never log the full URL: it contains the database password.
+        logger.info(f"Connecting to MongoDB at {redact_mongo_url(settings.MONGODB_URL)}...")
         db_manager.client = AsyncIOMotorClient(
             settings.MONGODB_URL,
             serverSelectionTimeoutMS=5000

@@ -32,6 +32,10 @@ class Settings(BaseSettings):
             return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
     
+    @property
+    def IS_PRODUCTION(self) -> bool:
+        return self.ENVIRONMENT.lower() == "production"
+
     # Attention Inference & Pipeline
     ATTENTION_SIMULATION_MODE: bool = os.getenv("ATTENTION_SIMULATION_MODE", "true").lower() in ("true", "1", "yes")
     ONNX_MODEL_PATH: str = os.getenv("ONNX_MODEL_PATH", "./models/attention_model.onnx")
@@ -42,3 +46,11 @@ class Settings(BaseSettings):
         extra = "ignore"
 
 settings = Settings()
+
+# In the cloud (ENVIRONMENT=production) secrets must come from Secret Manager
+# via environment variables. Refuse to start with the built-in dev defaults.
+if settings.IS_PRODUCTION:
+    if not os.getenv("JWT_SECRET") or len(settings.JWT_SECRET) < 32:
+        raise RuntimeError("JWT_SECRET must be provided (>= 32 chars) in production, via Secret Manager.")
+    if not os.getenv("MONGODB_URL"):
+        raise RuntimeError("MONGODB_URL must be provided in production, via Secret Manager.")
